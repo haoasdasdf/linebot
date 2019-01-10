@@ -59,16 +59,6 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
         else:
             logger.info('A webhook test')
-
-            dummy_data = {
-                'user_id': 'U816d9966f1e0af6c123cdb3a6522b7c4',
-                'latitude': 35.691455,
-                'longitude': 139.767683,
-                'address': 'Japan, 〒101-0047 Tōkyō-to, Chiyoda-ku, Uchikanda, 2 Chome−12−５ 内山ビル'
-
-            }
-            fire = DBAPI()
-            fire.add_user(dummy_data)
     except:
         logger.error('reply error')
 
