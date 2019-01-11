@@ -59,12 +59,13 @@ class DBAPI(object):
             try:
                 user = self.db.collection(u'linebot').document(u'users').collection(u'user')
                 user.document(user_id).delete()
+                return ('Your infomation was deleted')
             except Exception as e:
                 logger.error('delete user failed')
                 logger.error(e)
-                return 'Some thing wrong, please try delete again'
+                return ('Some thing wrong, please try delete again')
         else:
-            logger.error('You are not a register user')
+            logger.info('You are not a register user')
             return ('You are not a register user')
     
     def activate_user(self, user_id):
@@ -90,5 +91,5 @@ dummy_data = {
 
 }
 # do.add_user(dummy_data)
-do.delete_user('U816d9966f1e0af6c123cdb3a6522b7c4')
+logger.info(do.delete_user('U816d9966f1e0af6c123cdb3a6522b7c4'))
 # logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
