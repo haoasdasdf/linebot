@@ -4,7 +4,7 @@ import os
 
 import dotenv
 from flask import Flask, Response, abort, request
-# from linebot import LineBotApi, WebhookHandler
+from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import (LocationMessage, MessageEvent, TextMessage,
 	TextSendMessage)
@@ -23,13 +23,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
+line_bot_api = LineBotApi(os.environ.get('LINE_ACCESS_TOKEN'))
+handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
+
 fire = DBAPI()
 actions = Actions()
 line_callback = LineCallback()
 
 def push_message(user_id, content):
 	try:
-		line_callback.line_bot_api.push_message(user_id, TextSendMessage(text=content))
+		line_bot_api.push_message(user_id, TextSendMessage(text=content))
 	except Exception as e:
 		logger.error(e)
 		return ('Some thing wrong')
@@ -91,30 +94,32 @@ def callback():
 
 	# handle webhook body
 	try:
-		line_callback.handler.handle(body, signature)
+		handler.handle(body, signature)
 	except InvalidSignatureError:
 		abort(400)
 
 	return 'OK'
 
-# Add handlers
-line_callback.handler.add(MessageEvent, message=TextMessage)
-def handle_message(self, event):
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
 	try:
+
 		logger.info(event.reply_token)
 		if(event.reply_token != '00000000000000000000000000000000'):
 			if(event.message.text == 'delete'):
 				logger.info('delete request')
-				result = line_callback.fire.delete_user(event.source.user_id)
-				self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+				result = fire.delete_user(event.source.user_id)
+				line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
 			else:
-				self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
+				line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
 		else:
 			logger.info('A webhook test')
 	except:
 		logger.error('reply error')
-line_callback.handler.add(MessageEvent, message=LocationMessage)
-def handle_location(self, event):
+
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_location(event):
 	logger.info('token: {0}'.format(event.reply_token))
 	try:
 		data = {}
@@ -125,7 +130,7 @@ def handle_location(self, event):
 		logger.info(data)
 		# fire = DBAPI()
 		result = fire.add_user(data)
-		self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+		line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
 
 	except Exception as e:
 		logger.error('error')

@@ -26,34 +26,34 @@ class LineCallback():
 
 	# handler add
 	# def add_handlers(self):
-	# 	self.handler.add(MessageEvent, message=TextMessage)
-	# 	def handle_message(self, event):
-	# 		try:
-	# 			logger.info(event.reply_token)
-	# 			if(event.reply_token != '00000000000000000000000000000000'):
-	# 				if(event.message.text == 'delete'):
-	# 					logger.info('delete request')
-	# 					result = self.fire.delete_user(event.source.user_id)
-	# 					self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
-	# 				else:
-	# 					self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
-	# 			else:
-	# 				logger.info('A webhook test')
-	# 		except:
-	# 			logger.error('reply error')
-	# 	self.handler.add(MessageEvent, message=LocationMessage)
-	# 	def handle_location(self, event):
-	# 		logger.info('token: {0}'.format(event.reply_token))
-	# 		try:
-	# 			data = {}
-	# 			data['latitude'] = event.message.latitude
-	# 			data['longitude'] = event.message.longitude
-	# 			data['user_id'] = event.source.user_id
-	# 			data['address'] = event.message.address
-	# 			logger.info(data)
-	# 			result = self.fire.add_user(data)
-	# 			self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+		# @handler.add( MessageEvent, message=TextMessage)
+	def handle_message(self, event):
+		try:
+			logger.info(event.reply_token)
+			if(event.reply_token != '00000000000000000000000000000000'):
+				if(event.message.text == 'delete'):
+					logger.info('delete request')
+					result = self.fire.delete_user(event.source.user_id)
+					self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+				else:
+					self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
+			else:
+				logger.info('A webhook test')
+		except:
+			logger.error('reply error')
+		# @handler.add(MessageEvent, message=LocationMessage)
+	def handle_location(self, event):
+		logger.info('token: {0}'.format(event.reply_token))
+		try:
+			data = {}
+			data['latitude'] = event.message.latitude
+			data['longitude'] = event.message.longitude
+			data['user_id'] = event.source.user_id
+			data['address'] = event.message.address
+			logger.info(data)
+			# result = self.fire.add_user(data)
+			# self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
 
-	# 		except Exception as e:
-	# 			logger.error('error')
-	# 			logger.error(e)
+		except Exception as e:
+			logger.error('error')
+			logger.error(e)
