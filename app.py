@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-# fire = DBAPI()
+fire = DBAPI()
 actions = Actions()
 line_callback = LineCallback()
 
@@ -66,7 +66,7 @@ def push_content():
 		logger.info('Bad request because no content')
 		return abort(400)
 	try:
-		users = line_callback.get_active_users()
+		users = fire.get_active_users()
 		if len(users) > 0:
 			results = []
 			for user in users:
@@ -96,6 +96,41 @@ def callback():
 		abort(400)
 
 	return 'OK'
+
+# Add handlers
+line_callback.handler.add(MessageEvent, message=TextMessage)
+def handle_message(self, event):
+	try:
+		logger.info(event.reply_token)
+		if(event.reply_token != '00000000000000000000000000000000'):
+			if(event.message.text == 'delete'):
+				logger.info('delete request')
+				result = line_callback.fire.delete_user(event.source.user_id)
+				self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+			else:
+				self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
+		else:
+			logger.info('A webhook test')
+	except:
+		logger.error('reply error')
+line_callback.handler.add(MessageEvent, message=LocationMessage)
+def handle_location(self, event):
+	logger.info('token: {0}'.format(event.reply_token))
+	try:
+		data = {}
+		data['latitude'] = event.message.latitude
+		data['longitude'] = event.message.longitude
+		data['user_id'] = event.source.user_id
+		data['address'] = event.message.address
+		logger.info(data)
+		# fire = DBAPI()
+		result = fire.add_user(data)
+		self.line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+
+	except Exception as e:
+		logger.error('error')
+		logger.error(e)
+
 
 if __name__ == '__main__':
 	app.run()
