@@ -82,3 +82,17 @@ class DBAPI(object):
         if len(list(check)) >0:
             return True
         return False
+
+# For single test
+if __name__ == "__main__":
+    do = DBAPI()
+    dummy_data = {
+        'user_id': 'U816d9966f1e0af6c123cdb3a6522b7c4',
+        'latitude': 35.691455,
+        'longitude': 139.767683,
+        'address': 'Japan, 〒101-0047 Tōkyō-to, Chiyoda-ku, Uchikanda, 2 Chome−12−５ 内山ビル'
+
+    }
+    # do.add_user(dummy_data)
+    # logger.info(do.delete_user('U816d9966f1e0af6c123cdb3a6522b7c4'))
+    # logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
