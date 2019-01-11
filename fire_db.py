@@ -66,6 +66,7 @@ class DBAPI(object):
 		else:
 			logger.info('You are not a register user')
 			return ('You are not a register user')
+        
 
 	def activate_user(self, user_id):
 		pass
