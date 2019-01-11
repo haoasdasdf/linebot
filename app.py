@@ -28,6 +28,8 @@ logger.debug('*' * 20)
 logger.debug(os.environ.get('LINE_ACCESS_TOKEN'))
 logger.debug(os.environ.get('LINE_CHANNEL_SECRET'))
 
+fire = DBAPI()
+
 @app.route('/')
 def hello_world():
     return 'hello world!'
@@ -56,7 +58,12 @@ def handle_message(event):
         
         logger.info(event.reply_token)
         if(event.reply_token != '00000000000000000000000000000000'):
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
+            if(event.message.text == 'delete'):
+                logger.info('delete request')
+                result = fire.delete_user(event.source.user_id)
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+            else:
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=event.message.text))
         else:
             logger.info('A webhook test')
     except:
@@ -72,7 +79,7 @@ def handle_location(event):
         data['user_id'] = event.source.user_id
         data['address'] = event.message.address
         logger.info(data)
-        fire = DBAPI()
+        # fire = DBAPI()
         result = fire.add_user(data)
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
 
