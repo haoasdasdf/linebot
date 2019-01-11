@@ -6,12 +6,13 @@ import dotenv
 from flask import Flask, Response, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import (LocationMessage, MessageEvent, TextMessage,
-	TextSendMessage)
+from linebot.models import (FollowEvent, LocationMessage, MessageEvent,
+	TextMessage, TextSendMessage, UnfollowEvent)
 
 from actions import Actions
 from fire_db import DBAPI
-from line import LineCallback
+
+# from line import LineCallback
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 dotenv.load_dotenv(dotenv_path)
@@ -28,7 +29,7 @@ handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
 
 fire = DBAPI()
 actions = Actions()
-line_callback = LineCallback()
+# line_callback = LineCallback()
 
 def push_message(user_id, content):
 	try:
@@ -41,22 +42,6 @@ def push_message(user_id, content):
 @app.route('/')
 def hello_world():
 	return 'hello world!'
-
-# @app.route('/line/push')
-# def push():
-# 	try:
-# 		users = fire.get_active_users()
-# 		if len(users) > 0:
-# 			results = []
-# 			for user in users:
-# 				result = {}
-# 				result[user] = push_message(user)
-# 				results.append(result)
-# 			logger.info('Push result')
-# 			logger.info(results)
-# 	except Exception as e:
-# 		logger.error(e)
-# 	return 'OK'
 
 @app.route('/line/push', methods=['POST'])
 def push_content():
@@ -104,7 +89,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
 	try:
-
+		# reply if token is not for webhook test
 		logger.info(event.reply_token)
 		if(event.reply_token != '00000000000000000000000000000000'):
 			if(event.message.text == 'delete'):
@@ -136,6 +121,36 @@ def handle_location(event):
 		logger.error('error')
 		logger.error(e)
 
+@handler.add(FollowEvent)
+def handle_follow(event):
+	try:
+		# reply if token is not for webhook test
+		logger.info(event.reply_token)
+		if(event.reply_token != '00000000000000000000000000000000'):
+			logger.info('Get a follow event')
+			username = ''
+			try:
+				profile = line_bot_api.get_profile(event.source.user_id)
+				username = profile.display_name
+				logger.info('username: {0}'.format(username))
+			except:
+				logger.error('Failed to get user profile')
+			greeting_message = ('Hello {0}! \n \n Thank you for follow me! \n \n Please send me your location'.format(username))
+			line_bot_api.reply_message(event.reply_token, TextSendMessage(text=greeting_message))
+		else:
+			logger.info('A webhook test')
+	except:
+		logger.error('reply for follow event error')
+
+@handler.add(UnfollowEvent)
+def handle_unfollow(event):
+	logger.info('Get an unfollow event')
+	try:
+		logger.info('delete request')
+		result = fire.delete_user(event.source.user_id)
+		logger.info(result)
+	except:
+		logger.error('delete failed')
 
 if __name__ == '__main__':
 	app.run()
