@@ -29,7 +29,7 @@ class LineCallback():
 
 	# handler add
 	def add_handlers(self):
-  		self.handler.add(MessageEvent, message=TextMessage)
+		self.handler.add(MessageEvent, message=TextMessage)
 		def handle_message(self, event):
 			try:
 				logger.info(event.reply_token)
