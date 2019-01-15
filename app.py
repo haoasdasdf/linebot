@@ -1,4 +1,5 @@
 
+import datetime
 import logging
 import os
 
@@ -11,6 +12,7 @@ from linebot.models import (FollowEvent, LocationMessage, MessageEvent,
 
 from actions import Actions
 from fire_db import DBAPI
+from weather import Weather
 
 # from line import LineCallback
 
@@ -29,9 +31,13 @@ handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
 
 fire = DBAPI()
 actions = Actions()
+weather = Weather()
+JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
 # line_callback = LineCallback()
 
-def push_message(user_id, content):
+def push_message(user_id, content=None):
+	if content is None:
+		return('Nothing to send')
 	try:
 		line_bot_api.push_message(user_id, TextSendMessage(text=content))
 	except Exception as e:
@@ -53,20 +59,65 @@ def push_content():
 	if 'content' not in request.json:
 		logger.info('Bad request because no content')
 		return abort(400)
+	if 'user_id' in request.json:
+		result = push_message(request.json['user_id'], request.json['content'])
+		logger.info('Push result')
+		logger.info(result)
+	else:
+		try:
+			users = fire.get_active_users()
+			if len(users) > 0:
+				results = []
+				for user in users:
+					result = {}
+					result[user] = push_message(user, request.json['content'])
+					results.append(result)
+				logger.info('Push result')
+				logger.info(results)
+		except Exception as e:
+			logger.error(e)
+			return abort(401)
+	return Response(status=200)
+
+@app.route('/line/weather-push')
+@app.route('/line/weather-push/<user_id>')
+def push_weather(user_id=None):
+	if 'My-Push-Secret' not in request.headers or not actions.check_my_push_secret(request.headers['My-Push-Secret']):
+		logger.info('Push secret is incorrect')
+		return abort(403)
 	try:
-		users = fire.get_active_users()
+		now = datetime.datetime.now(JST)
+		if user_id is None:
+			users = fire.get_active_users()
+		else:
+			users = [user_id]
 		if len(users) > 0:
 			results = []
 			for user in users:
 				result = {}
-				result[user] = push_message(user, request.json['content'])
-				results.append(result)
+				loc = fire.get_location_info(user)
+				if loc is None:
+					result[user] = push_message(user)
+				else:
+					logger.info('get weather info')
+
+					weather_raw,city_info = weather.get_weather(loc['latitude'], loc['longitude'], int(now.timestamp()))
+					content = None
+					if((weather_raw is not None) and (city_info is not None)):
+						content = weather.format_weather_data(weather_raw, city_info)
+					else:
+						logger.info('Unknown location for user {0}'.format(user))
+
+					logger.info('Push weather info to user')
+					result[user] = push_message(user, content)
+					results.append(result)
 			logger.info('Push result')
 			logger.info(results)
 	except Exception as e:
 		logger.error(e)
 		return abort(401)
 	return Response(status=200)
+
 
 @app.route('/line/callback', methods=['POST'])
 def callback():

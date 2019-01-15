@@ -66,7 +66,26 @@ class DBAPI(object):
 		else:
 			logger.info('You are not a register user')
 			return ('You are not a register user')
-        
+
+	def get_location_info(self,user_id):
+		if self.check_is_exist(user_id):
+			logger.info('proccess to get location info for {0}'.format(user_id))
+			try:
+				users = self.db.collection(u'linebot').document(u'users').collection(u'user').where('active', '==', True).where('user_id', '==', user_id).get()
+				for user in users:
+					data = {
+					'latitude': user.to_dict()['latitude'],
+					'longitude': user.to_dict()['longitude']
+					}
+					logger.info('Got location info : {}'.format(data))
+					return data
+
+			except Exception as e:
+				logger.info('Failed to get user location info {0}'.format(user_id))
+				logger.error(e)
+		else:
+			logger.info('No data for user: {0}'.format(user_id))
+		return None 
 
 	def activate_user(self, user_id):
 		pass
@@ -87,9 +106,13 @@ class DBAPI(object):
 	def check_is_exist(self, user_id):
 		users = self.db.collection(u'linebot').document(u'users').collection(u'user')
 		check = users.where('user_id', '==', user_id).get()
-		if len(list(check)) >0:
-			return True
+		if len(list(check)) > 0:
+			return True 
 		return False
+	def check_this_user_count(self, user_id):
+		users = self.db.collection(u'linebot').document(u'users').collection(u'user')
+		check = users.where('user_id', '==', user_id).get()
+		return len(list(check))
 
 # For single test
 if __name__ == "__main__":
@@ -101,7 +124,9 @@ if __name__ == "__main__":
 		'address': 'Japan, 〒101-0047 Tōkyō-to, Chiyoda-ku, Uchikanda, 2 Chome−12−５ 内山ビル'
 
 	}
+
 	# do.add_user(dummy_data)
 	# logger.info(do.get_active_users())
 	# logger.info(do.delete_user('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))
