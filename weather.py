@@ -112,7 +112,7 @@ class Weather():
 		logger.info('Format weather data for send ')
 		data = f'''
 本日の天気予報です。
-場所：{city_info['country']},{city_info['region']},{city_info['state']},{city_info['city']},〒{city_info['postcode']}
+場所：{city_info['country']},{city_info['region']},{city_info['state']},{city_info['city']}
 現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
 
 今日は{weather_data['daily_summary']}
@@ -156,9 +156,9 @@ if __name__ == '__main__':
 		'city': '目黒区', 'state': '東京都', 'region': '関東地方', 'postcode': '152-0003', 'country': '日本', 'country_code': 'jp'
 	}
 	timestamp = 1547153054
-	# wea = Weather()
+	wea = Weather()
 	# city = wea.get_city_name(dummy_location['latitude'], dummy_location['longitude'])
 	# if(city is not None):
 	# 	# wea.get_weather_owm(city['city'], city['country'])
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
-	# print(wea.format_weather_data(weather_dummy, city_dummy))
+	print(wea.format_weather_data(weather_dummy, city_dummy))
