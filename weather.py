@@ -110,9 +110,11 @@ class Weather():
 		return None, None
 	def format_weather_data(self, weather_data, city_info):
 		logger.info('Format weather data for send ')
+		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
+
 		data = f'''
 本日の天気予報です。
-場所：{city_info['country']},{city_info['region']},{city_info['state']},{city_info['city']}
+場所：{city_info['country']},{city_info['state']},{city}
 現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
 
 今日は{weather_data['daily_summary']}

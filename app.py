@@ -81,9 +81,9 @@ def push_content():
 
 @app.route('/line/weather-push')
 @app.route('/line/weather-push/<user_id>')
-def push_weather(user_id=None):
+def push_weather(user_id=None, internal=None):
 	if 'My-Push-Secret' not in request.headers or not actions.check_my_push_secret(request.headers['My-Push-Secret']):
-		if request is not None:
+		if not internal:
 			logger.info('Push secret is incorrect')
 			return abort(403)
 		else:
@@ -170,10 +170,10 @@ def handle_location(event):
 		# fire = DBAPI()
 		result = fire.add_user(data)
 		line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
-		push_weather(data['user_id'])
+		push_weather(data['user_id'], True)
 
 	except Exception as e:
-		logger.error('error')
+		logger.error('handle_location error')
 		logger.error(e)
 
 @handler.add(FollowEvent)
