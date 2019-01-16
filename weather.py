@@ -156,9 +156,9 @@ if __name__ == '__main__':
 		'city': '目黒区', 'state': '東京都', 'region': '関東地方', 'postcode': '152-0003', 'country': '日本', 'country_code': 'jp'
 	}
 	timestamp = 1547153054
-	wea = Weather()
+	# wea = Weather()
 	# city = wea.get_city_name(dummy_location['latitude'], dummy_location['longitude'])
 	# if(city is not None):
 	# 	# wea.get_weather_owm(city['city'], city['country'])
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
-	print(wea.format_weather_data(weather_dummy, city_dummy))
+	# print(wea.format_weather_data(weather_dummy, city_dummy))
