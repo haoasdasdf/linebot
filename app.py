@@ -83,8 +83,11 @@ def push_content():
 @app.route('/line/weather-push/<user_id>')
 def push_weather(user_id=None):
 	if 'My-Push-Secret' not in request.headers or not actions.check_my_push_secret(request.headers['My-Push-Secret']):
-		logger.info('Push secret is incorrect')
-		return abort(403)
+		if request is not None:
+			logger.info('Push secret is incorrect')
+			return abort(403)
+		else:
+			logger.info('Get push weather request from internal')
 	try:
 		now = datetime.datetime.now(JST)
 		if user_id is None:
