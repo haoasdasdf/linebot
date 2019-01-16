@@ -167,6 +167,7 @@ def handle_location(event):
 		# fire = DBAPI()
 		result = fire.add_user(data)
 		line_bot_api.reply_message(event.reply_token, TextSendMessage(text=result))
+		push_weather(data['user_id'])
 
 	except Exception as e:
 		logger.error('error')
