@@ -1,16 +1,22 @@
 import logging
 import os
-import os.path
+import sys
 
 import dotenv
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-dotenv.load_dotenv(dotenv_path)
+args = sys.argv
 
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
-
+if len(args) == 1:
+	dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+else: 
+	try:
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env.' + args[1])
+	except:
+		# logger.error('Can not find environment file named {0}'.format(args[1]))
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 MY_PUSH_SECRET = os.environ.get('MY_PUSH_SECRET')
 
 

@@ -2,6 +2,7 @@
 import datetime
 import logging
 import os
+import sys
 
 import dotenv
 from flask import Flask, Response, abort, request
@@ -14,14 +15,23 @@ from actions import Actions
 from fire_db import DBAPI
 from weather import Weather
 
-# from line import LineCallback
-
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-dotenv.load_dotenv(dotenv_path)
-
+args = sys.argv
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
+# from line import LineCallback
+if len(args) == 1:
+	dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+else: 
+	try:
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env.' + args[1])
+		logger.info('Used {0} environment'.format(args[1]))
+	except:
+		logger.error('Can not find environment file named {0}'.format(args[1]))
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv.load_dotenv(dotenv_path)
+
+logger.info(os.environ.get('FIREBASE_DATABASE_COLLECTION_NAME'))
 
 
 app = Flask(__name__)

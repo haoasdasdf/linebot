@@ -1,6 +1,8 @@
+import datetime
 import logging
 import os
-import datetime
+import sys
+
 import dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -9,7 +11,16 @@ logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+args = sys.argv
+
+if len(args) == 1:
+	dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+else: 
+	try:
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env.' + args[1])
+	except:
+		# logger.error('Can not find environment file named {0}'.format(args[1]))
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 dotenv.load_dotenv(dotenv_path)
 
 # FIREBASE_KEY_URL = os.environ.get('FIREBASE_KEY_URL')
@@ -117,7 +128,7 @@ class DBAPI(object):
 
 # For single test
 if __name__ == "__main__":
-	
+
 	dummy_data = {
 		'user_id': 'U816d9966f1e0af6c123cdb3a6522b7c4',
 		'latitude': 35.691455,

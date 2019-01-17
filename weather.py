@@ -2,17 +2,26 @@ import datetime
 import json
 import logging
 import os
+import sys
 
 import dotenv
 import requests
 from geopy.geocoders import Nominatim
 
+args = sys.argv
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if len(args) == 1:
+	dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+else: 
+	try:
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env.' + args[1])
+	except:
+		# logger.error('Can not find environment file named {0}'.format(args[1]))
+		dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 dotenv.load_dotenv(dotenv_path)
 
 OPEN_WEATHER_MAP_API_KEY = os.environ.get('OPEN_WEATHER_MAP_API_KEY')
@@ -113,16 +122,16 @@ class Weather():
 		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
 
 		data = f'''
-本日の天気予報です。
-場所：{city_info['country']},{city_info['state']},{city}
-現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
-
-今日は{weather_data['daily_summary']}
-気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
-体感気温: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
-湿度: {weather_data['daily_humidity']}%
-風速: {weather_data['wind_speed']} m/s
-		     '''
+		        本日の天気予報です。
+		        場所：{city_info['country']},{city_info['state']},{city}
+		        現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
+		        
+		        今日は{weather_data['daily_summary']}
+		        気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
+		        体感気温: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
+		        湿度: {weather_data['daily_humidity']}%
+		        風速: {weather_data['wind_speed']} m/s
+		        		     '''
 		# sentence = [
 		# 	'本日の天気予報です。',
 		# 	f"場所：{city_info['country']},{city_info['region']},{city_info['state']},{city_info['city']},〒{city_info['postcode']}",
