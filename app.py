@@ -6,7 +6,7 @@ from flask import Flask, Response, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import (FollowEvent, LocationMessage, MessageEvent,
-                            TextMessage, TextSendMessage, UnfollowEvent)
+	TextMessage, TextSendMessage, UnfollowEvent)
 
 from actions import Actions
 from config import Config
@@ -24,8 +24,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi(Config.LINE_ACCESS_TOKEN)
-handler = WebhookHandler(Config.LINE_CHANNEL_SECRET)
+line_bot_api = LineBotApi(Config.LINE_CONFIG['ACCESS_TOKEN'])
+handler = WebhookHandler(Config.LINE_CONFIG['CHANNEL_SECRET'])
 
 fire = DBAPI()
 actions = Actions()

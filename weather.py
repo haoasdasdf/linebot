@@ -1,7 +1,7 @@
 import datetime
 import json
 import logging
-
+import os
 import requests
 from geopy.geocoders import Nominatim
 
@@ -14,10 +14,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 
-OPEN_WEATHER_MAP_API_KEY = Config.OPEN_WEATHER_MAP_API_KEY
-OPEN_WEATHER_MAP_BASE_URL = Config.OPEN_WEATHER_MAP_BASE_URL
-DARKSKY_API_SECRET_KEY = Config.DARKSKY_API_SECRET_KEY
-DARKSKY_API_BASE_URL = Config.DARKSKY_API_BASE_URL
+OPEN_WEATHER_MAP_API_KEY = Config.OWM_API_CONFIG['KEY']
+OPEN_WEATHER_MAP_BASE_URL = Config.OWM_API_CONFIG['BASE_URL']
+DARKSKY_API_SECRET_KEY = Config.DARKSKYAPI_CONFIG['SECRET_KEY']
+DARKSKY_API_BASE_URL = Config.DARKSKYAPI_CONFIG['BASE_URL']
 
 class Weather():
 	def __init__(self, *args, **kwargs):
@@ -112,16 +112,16 @@ class Weather():
 		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
 
 		data = f'''
-本日の天気予報です。
-場所：{city_info['country']},{city_info['state']},{city}
-現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
-		        
-今日は{weather_data['daily_summary']}
-気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
-体感気温: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
-湿度: {weather_data['daily_humidity']}%
-風速: {weather_data['wind_speed']} m/s
-		        '''
+		        本日の天気予報です。
+		        場所：{city_info['country']},{city_info['state']},{city}
+		        現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
+		        		        
+		        今日は{weather_data['daily_summary']}
+		        気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
+		        体感気温: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
+		        湿度: {weather_data['daily_humidity']}%
+		        風速: {weather_data['wind_speed']} m/s
+		        		        '''
 		# sentence = [
 		# 	'本日の天気予報です。',
 		# 	f"場所：{city_info['country']},{city_info['region']},{city_info['state']},{city_info['city']},〒{city_info['postcode']}",
@@ -136,7 +136,8 @@ class Weather():
 		# data = '\n'.join(sentence)
 		return data
 
-
+from worker import conn
+from rq import Queue
 if __name__ == '__main__':
 
 	dummy_location = {
@@ -158,6 +159,11 @@ if __name__ == '__main__':
 	}
 	timestamp = 1547153054
 	# wea = Weather()
+
+
+	# q = Queue(connection=conn)
+
+	# result = q.enqueue('a','b')
 	# city = wea.get_city_name(dummy_location['latitude'], dummy_location['longitude'])
 	# if(city is not None):
 	# 	# wea.get_weather_owm(city['city'], city['country'])

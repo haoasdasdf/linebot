@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 class DBAPI(object):
 	def __init__(self, *args, **kwargs):
 		self.cred = credentials.Certificate('firebasekey.json')
-		self.FIREBASE_DATABASE_COLLECTION_NAME = Config.FIREBASE_DATABASE_COLLECTION_NAME
+		self.FIREBASE_DATABASE_COLLECTION_NAME = Config.FIREBASE_CONFIG['COLLECTION_NAME']
 		firebase_admin.initialize_app(self.cred)
 		self.db = firestore.client()
 
