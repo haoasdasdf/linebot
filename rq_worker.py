@@ -2,6 +2,7 @@ import logging
 
 import redis
 from rq import Connection, Queue, Worker
+from rq.handlers import move_to_failed_queue
 
 from config import Config
 
@@ -12,15 +13,13 @@ logging.basicConfig(level=logging.DEBUG)
 listen = ['high', 'default', 'low']
 redis_config = Config.REDIS_CLOUD_CONFIG
 redis_url = 'redis://{0}:{1}@{2}'.format(redis_config['DATABASE_NAME'], redis_config['PASSWORD'], redis_config['URL'])
-
+# logger.debug(redis_url)
 conn = redis.from_url(redis_url)
 
-def main():
-	r = redis.Redis.from_url(redis_url)
-	for key in r.keys('*'):
-		print (key)
 if __name__ == '__main__':
+	logger.debug(redis_url)
 	with Connection(conn):
 		worker = Worker(map(Queue, listen))
+
 		worker.work()
 	# main()

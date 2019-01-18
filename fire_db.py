@@ -12,8 +12,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 # FIREBASE_KEY_URL = Config.FIREBASE_KEY_URL
-class DBAPI(object):
-	def __init__(self, *args, **kwargs):
+class DBAPI():
+	def __init__(self, app_name=None, *args, **kwargs):
+		self.app_name = app_name if app_name is not None else 'default'
 		self.cred = credentials.Certificate('firebasekey.json')
 		self.FIREBASE_DATABASE_COLLECTION_NAME = Config.FIREBASE_CONFIG['COLLECTION_NAME']
 		firebase_admin.initialize_app(self.cred)
@@ -125,7 +126,7 @@ if __name__ == "__main__":
 
 	}
 	do = DBAPI()
-	# do.add_user(dummy_data)
+	do.add_user(dummy_data)
 	# logger.info(do.get_active_users())
 	# logger.info(do.delete_user('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
