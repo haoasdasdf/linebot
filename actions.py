@@ -112,7 +112,8 @@ def push_weather_to_users(time, user_id=None):
 def received_location(reply_token, time, data):
 	try:
 		result = fire.add_user(data)
-		line_bot.line_bot_api.reply_message(reply_token, TextSendMessage(text=result))
+		q.enqueue(reply_line,args=(reply_token, result))
+		# line_bot.line_bot_api.reply_message(reply_token, TextSendMessage(text=result))
 		q.enqueue(push_weather_to_users, args=(time, data['user_id']))
 	except:
 		return False
@@ -132,17 +133,21 @@ def received_follow(reply_token, user_id):
 			except:
 				logger.error('Failed to get user profile')
 			greeting_message = ('Hello {0}! \n \n Thank you for follow me! \n \n Please send me your location'.format(username))
-			line_bot.line_bot_api.reply_message(reply_token, TextSendMessage(text=greeting_message))
+			q.enqueue(reply_line,args=(reply_token, greeting_message))
+			fire.activate_user(user_id)
 		else:
 			logger.info('A webhook test')
-	except:
+	except Exception as e:
+		logger.error(e)
 		logger.error('reply for follow event error')
 
 def received_unfollow( user_id):
 	try:
 		logger.info('delete request')
-		result = fire.delete_user(user_id)
-		logger.info(result)
-	except:
+		#deactivate_user
+		fire.deactivate_user(user_id)
+		# logger.info(result)
+	except Exception as e:
+		logger.error(e)
 		logger.error('delete failed')
 

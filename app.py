@@ -128,19 +128,13 @@ def handle_location(event):
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-	try:
-		q.enqueue(received_follow, args=(event.reply_token, event.source.user_id))
-	except Exception as e:
-		logger.error(e)
-		logger.error('reply for follow event error')
+	q.enqueue(received_follow, args=(event.reply_token, event.source.user_id))
+
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
-	logger.info('Get an unfollow event')
-	try:
-		q.enqueue(received_unfollow, event.source.user_id)
-	except:
-		logger.error('delete failed')
+	q.enqueue(received_unfollow, event.source.user_id)
+
 
 if __name__ == '__main__':
 	app.run()

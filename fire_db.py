@@ -51,7 +51,11 @@ class DBAPI():
 
 	def update_user(self, data):
 		user = self.db.collection(self.FIREBASE_DATABASE_COLLECTION_NAME).document(u'users').collection(u'user')
-		user.document(data['user_id']).update(data)
+		try:
+			user.document(data['user_id']).update(data)
+			logger.info('updated data : {0}for {1}'.format(data, data['user_id']))
+		except:
+			logger.error('Failed to update {0}'.format(data['user_id']))
 
 	def delete_user(self, user_id):
 		if self.check_is_exist(user_id):
@@ -89,10 +93,40 @@ class DBAPI():
 		return None 
 
 	def activate_user(self, user_id):
-		pass
+		if self.check_is_exist(user_id):
+			try:
+				data = {}
+				data['user_id'] = user_id
+				data['active'] = True
+				data['updated_at'] = datetime.datetime.utcnow()
+				logger.info(data)
+				self.update_user(data)
+				logger.info('Active user: {0}'.format(user_id))
+			except:
+				logger.error('Failed to active user {0}'.format(user_id))
+				return ('Failed to active user {0}'.format(user_id)) 
+		else:
+			logger.info('No data for user: {0}'.format(user_id))
+			return ('No data for user: {0}'.format(user_id)) 
+		return ('Active user: {0}'.format(user_id)) 
 
 	def deactivate_user(self, user_id):
-		pass
+		if self.check_is_exist(user_id):
+			try:
+				data = {}
+				data['user_id'] = user_id
+				data['active'] = False
+				data['updated_at'] = datetime.datetime.utcnow()
+				logger.info(data)
+				self.update_user(data)
+				logger.info('Deactive user: {0}'.format(user_id))
+			except:
+				logger.error('Failed to deactive user {0}'.format(user_id))
+				return ('Failed to deactive user {0}'.format(user_id))
+		else:
+			logger.info('No data for user: {0}'.format(user_id))
+			return ('No data for user: {0}'.format(user_id))
+		return ('Deactive user: {0}'.format(user_id))
 	# users = db.collection(self.FIREBASE_DATABASE_COLLECTION_NAME).document(u'users').collection(u'user').get()
 	# for user in users:
 	#     print(user.to_dict())
@@ -110,6 +144,14 @@ class DBAPI():
 		if len(list(check)) > 0:
 			return True 
 		return False
+
+	def check_is_active(self, user_id):
+		users = self.db.collection(self.FIREBASE_DATABASE_COLLECTION_NAME).document(u'users').collection(u'user')
+		check = users.where('user_id', '==', user_id).where('active', '==', True).get()
+		if len(list(check)) > 0:
+			return True 
+		return False
+
 	def check_this_user_count(self, user_id):
 		users = self.db.collection(self.FIREBASE_DATABASE_COLLECTION_NAME).document(u'users').collection(u'user')
 		check = users.where('user_id', '==', user_id).get()
@@ -125,9 +167,10 @@ if __name__ == "__main__":
 		'address': 'Japan, 〒101-0047 Tōkyō-to, Chiyoda-ku, Uchikanda, 2 Chome−12−５ 内山ビル'
 
 	}
-	do = DBAPI()
-	do.add_user(dummy_data)
+	# do = DBAPI()
+	
+	# do.add_user(dummy_data)
 	# logger.info(do.get_active_users())
-	# logger.info(do.delete_user('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	# logger.info(do.check_is_active('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))
