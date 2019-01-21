@@ -74,19 +74,47 @@ class Weather():
 	def temperature_f2c(self, fahrenheit):
 		return (round((fahrenheit - 32) / 1.8))
 
+	def get_direction(self, azimuth):
+		direction = '未知'
+		if azimuth < 23 or azimuth >= 338:
+			direction = '北'
+		elif azimuth < 68:
+			direction = '東北'
+		elif azimuth < 112:
+			direction = '東'
+		elif azimuth < 157:
+			direction = '東南'
+		elif azimuth < 202:
+			direction = '南'
+		elif azimuth < 247:
+			direction = '西南'
+		elif azimuth < 292:
+			direction = '西'
+		elif azimuth < 338:
+			direction = '西北'
+		return ('{0}方向'.format(direction))
+
+	def change_to_timezone(self, timestamp, timezone):
+		zone = datetime.timezone(datetime.timedelta(hours=timezone))
+		this_time = datetime.datetime.fromtimestamp(timestamp, zone)
+		return this_time
+
+
 	def get_weather(self, latitude, longitude, timestamp):
 		'''
 		return:
 		{
 			current_temp: {currently['temp']} @ {datetime}.format('HH:mm'),
 			current_summary: {currently['summary']},
+			current_windBearing: {currently['windBearing']},
 			daily_summary: {hourly['summary']},
 			daily_humidity: {daily['data'][0]['humidity']} * 100
 			max_temp: {daily['data'][0]['max_temp']} @ {datetime}.format('HH:mm'),
 			min_temp: {daily['data'][0]['min_temp']} @ {datetime}.format('HH:mm'),
 			max_apparent_temp: {daily['data'][0]['max_apparent_temp']} @ {datetime}.format('HH:mm'),
 			min_apparent_temp: {daily['data']['min_apparent_temp']} @ {datetime}.format('HH:mm'),
-			wind_speed: {daily['data'][0]['windSpeed']}
+			wind_speed: {daily['data'][0]['windSpeed']},
+			daily_windBearing: {daily['windBearing']},
 		
 		}
 		'''
@@ -96,6 +124,8 @@ class Weather():
 			if(darksky_data is not None):
 				weather_data['current_temp'] = round(darksky_data['currently']['temperature'])
 				weather_data['current_summary'] = darksky_data['currently']['summary']
+				weather_data['current_windSpeed'] = darksky_data['currently']['windSpeed']
+				weather_data['current_windBearing'] = darksky_data['currently']['windBearing'] if 'windBearing' in darksky_data['currently'] else None
 				weather_data['daily_summary'] = darksky_data['hourly']['summary']
 				weather_data['daily_humidity'] = round(darksky_data['daily']['data'][0]['humidity'] * 100)
 				weather_data['max_temp'] = round(darksky_data['daily']['data'][0]['temperatureMax'])
@@ -103,6 +133,9 @@ class Weather():
 				weather_data['max_apparent_temp'] = round(darksky_data['daily']['data'][0]['apparentTemperatureMax'])
 				weather_data['min_apparent_temp'] = round(darksky_data['daily']['data'][0]['apparentTemperatureMin'])
 				weather_data['wind_speed'] = darksky_data['daily']['data'][0]['windSpeed']
+				weather_data['daily_windBearing'] = darksky_data['daily']['data'][0]['windBearing'] if 'windBearing' in darksky_data['daily']['data'][0] else None
+				weather_data['sunriseTime'] = darksky_data['daily']['data'][0]['sunriseTime']
+				weather_data['sunsetTime'] = darksky_data['daily']['data'][0]['sunsetTime']
 				return weather_data, self.get_city_name(latitude, longitude)
 		except:
 			logger.error('Failed to get weather data')
@@ -115,25 +148,16 @@ class Weather():
 本日の天気予報です。
 場所：{city_info['country']},{city_info['state']},{city}
 現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
-
+現在風速: {weather_data['current_windSpeed']} m/s, {self.get_direction(weather_data['current_windBearing'])}
+		        
 今日は{weather_data['daily_summary']}
 気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
-体感気温: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
+体感温度: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
 湿度: {weather_data['daily_humidity']}%
-風速: {weather_data['wind_speed']} m/s
-				'''
-		# sentence = [
-		# 	'本日の天気予報です。',
-		# 	f"場所：{city_info['country']},{city_info['region']},{city_info['state']},{city_info['city']},〒{city_info['postcode']}",
-		# 	f"現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}",
-		# 	f"",
-		# 	f"今日は{weather_data['daily_summary']}",
-		# 	f"気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C",
-		# 	f"体感気温: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C",
-		# 	f"湿度: {weather_data['daily_humidity']}%",
-		# 	f"風速: {weather_data['wind_speed']} m/s",
-		# 	]
-		# data = '\n'.join(sentence)
+風速: {weather_data['wind_speed']} m/s, {self.get_direction(weather_data['daily_windBearing'])}
+日の出: {self.change_to_timezone(weather_data['sunriseTime'], 9).strftime("%Y-%m-%d %H:%M")}
+日の入: {self.change_to_timezone(weather_data['sunsetTime'], 9).strftime("%Y-%m-%d %H:%M")}
+		        '''
 		return data
 
 
@@ -157,8 +181,8 @@ if __name__ == '__main__':
 	city_dummy = {
 		'city': '目黒区', 'state': '東京都', 'region': '関東地方', 'postcode': '152-0003', 'country': '日本', 'country_code': 'jp'
 	}
-	timestamp = 1547153054
-	# wea = Weather()
+	timestamp = 1548048962
+	wea = Weather()
 
 
 	# q = Queue(connection=conn)
@@ -167,5 +191,8 @@ if __name__ == '__main__':
 	# city = wea.get_city_name(dummy_location['latitude'], dummy_location['longitude'])
 	# if(city is not None):
 	# 	# wea.get_weather_owm(city['city'], city['country'])
+	# test = datetime.timezone(datetime.timedelta(hours=9))
+	# print(wea.change_to_timezone(int(datetime.datetime.now().timestamp()), 9).strftime("%Y-%m-%d %H:%M"))
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
-	# print(wea.format_weather_data(weather_dummy, city_dummy))
+	weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
+	print(wea.format_weather_data(weather_info, city_info))
