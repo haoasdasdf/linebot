@@ -155,8 +155,8 @@ class Weather():
 体感温度: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
 湿度: {weather_data['daily_humidity']}%
 風速: {weather_data['wind_speed']} m/s, {self.get_direction(weather_data['daily_windBearing'])}
-日の出: {self.change_to_timezone(weather_data['sunriseTime'], 9).strftime("%Y-%m-%d %H:%M")}
-日の入: {self.change_to_timezone(weather_data['sunsetTime'], 9).strftime("%Y-%m-%d %H:%M")}
+日の出: {self.change_to_timezone(weather_data['sunriseTime'], 9).strftime('%H:%M')}
+日の入: {self.change_to_timezone(weather_data['sunsetTime'], 9).strftime('%H:%M')}
 		        '''
 		return data
 
@@ -182,9 +182,8 @@ if __name__ == '__main__':
 		'city': '目黒区', 'state': '東京都', 'region': '関東地方', 'postcode': '152-0003', 'country': '日本', 'country_code': 'jp'
 	}
 	timestamp = 1548048962
-	wea = Weather()
-
-
+	
+	# wea = Weather()
 	# q = Queue(connection=conn)
 
 	# result = q.enqueue('a','b')
@@ -194,5 +193,5 @@ if __name__ == '__main__':
 	# test = datetime.timezone(datetime.timedelta(hours=9))
 	# print(wea.change_to_timezone(int(datetime.datetime.now().timestamp()), 9).strftime("%Y-%m-%d %H:%M"))
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
-	weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
-	print(wea.format_weather_data(weather_info, city_info))
+	# weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
+	# print(wea.format_weather_data(weather_info, city_info))
