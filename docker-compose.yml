@@ -11,7 +11,7 @@ services:
       - ./:/usr/src/app/api
     env_file: .env.dev
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
-    command: python app.py
+    command: python app.py dev
 
   rworker:
     restart: always
@@ -21,7 +21,7 @@ services:
     # depends_on:
     #   - redis
     env_file: .env.dev
-    command: python -u rq_worker.py
+    command: python -u rq_worker.py dev
 
 
   nginx:
