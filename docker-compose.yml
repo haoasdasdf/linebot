@@ -9,7 +9,7 @@ services:
       - "5000"
     volumes:
       - ./:/usr/src/app/api
-    # env_file: .env.dev
+    env_file: .env.dev
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py
 
@@ -20,7 +20,7 @@ services:
       - ./:/usr/src/app/api
     # depends_on:
     #   - redis
-    # env_file: api/.env.dev
+    env_file: .env.dev
     command: python -u rq_worker.py
 
 

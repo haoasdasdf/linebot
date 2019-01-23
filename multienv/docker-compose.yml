@@ -7,7 +7,7 @@ services:
     #   - redis
     expose:
       - "5000"
-    env_file: .env.dev
+    env_file: ./master/api/.env.dev
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py
 
@@ -16,7 +16,7 @@ services:
     build: ./dev
     # depends_on:
     #   - redis
-    env_file: api/.env.dev
+    env_file: ./master/api/.env.dev
     command: python -u rq_worker.py
 
   api-prod:
@@ -26,7 +26,7 @@ services:
     #   - redis
     expose:
       - "5000"
-    env_file: .env.dev
+    env_file: ./master/api/.env.master
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py
 
@@ -35,7 +35,7 @@ services:
     build: ./master
     # depends_on:
     #   - redis
-    env_file: api/.env.master
+    env_file: ./master/api/.env.master
     command: python -u rq_worker.py
 
   nginx:
