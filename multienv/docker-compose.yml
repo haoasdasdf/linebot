@@ -8,6 +8,9 @@ services:
     expose:
       - "5000"
     env_file: ./master/api/.env.dev
+    environment:
+      - FLASK_APP=app.py
+      - 'RUN=flask run --host=0.0.0.0 --port=5000'
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py
 
@@ -27,6 +30,9 @@ services:
     expose:
       - "5000"
     env_file: ./master/api/.env.master
+    environment:
+      - FLASK_APP=app.py
+      - 'RUN=flask run --host=0.0.0.0 --port=5000'
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py
 
