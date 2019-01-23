@@ -1,4 +1,4 @@
-FROM python:3.7.1-alpine
+FROM python:3.7.1
 
 ENV APP_PATH /usr/src/app
 

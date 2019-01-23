@@ -12,7 +12,7 @@ services:
       - FLASK_APP=app.py
       - 'RUN=flask run --host=0.0.0.0 --port=5000'
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
-    command: python app.py
+    command: python app.py dev
 
   rworker-dev:
     restart: always
@@ -20,7 +20,7 @@ services:
     # depends_on:
     #   - redis
     env_file: ./master/api/.env.dev
-    command: python -u rq_worker.py
+    command: python -u rq_worker.py dev
 
   api-prod:
     restart: always
@@ -34,7 +34,7 @@ services:
       - FLASK_APP=app.py
       - 'RUN=flask run --host=0.0.0.0 --port=5000'
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
-    command: python app.py
+    command: python app.py prod
 
   rworker-prod:
     restart: always
@@ -42,7 +42,7 @@ services:
     # depends_on:
     #   - redis
     env_file: ./master/api/.env.master
-    command: python -u rq_worker.py
+    command: python -u rq_worker.py prod
 
   nginx:
     restart: always
