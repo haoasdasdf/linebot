@@ -1,0 +1,54 @@
+version: "3"
+services:
+  api-dev:
+    restart: always
+    build: ./dev
+    # depends_on:
+    #   - redis
+    expose:
+      - "5000"
+    env_file: .env.dev
+    # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
+    command: python app.py
+
+  rworker-dev:
+    restart: always
+    build: ./dev
+    # depends_on:
+    #   - redis
+    env_file: api/.env.dev
+    command: python -u rq_worker.py
+
+  api-prod:
+    restart: always
+    build: ./master
+    # depends_on:
+    #   - redis
+    expose:
+      - "5000"
+    env_file: .env.dev
+    # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
+    command: python app.py
+
+  rworker-prod:
+    restart: always
+    build: ./master
+    # depends_on:
+    #   - redis
+    env_file: api/.env.master
+    command: python -u rq_worker.py
+
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    # volumes_from:
+    #   - api
+    links:
+      - api:api
+
+  # redis:
+  #   image: redis

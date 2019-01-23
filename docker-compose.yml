@@ -1,0 +1,40 @@
+version: "3"
+services:
+  api:
+    restart: always
+    build: .
+    # depends_on:
+    #   - redis
+    expose:
+      - "5000"
+    volumes:
+      - ./:/usr/src/app/api
+    # env_file: .env.dev
+    # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
+    command: python app.py
+
+  rworker:
+    restart: always
+    build: .
+    volumes:
+      - ./:/usr/src/app/api
+    # depends_on:
+    #   - redis
+    # env_file: api/.env.dev
+    command: python -u rq_worker.py
+
+
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    # volumes_from:
+    #   - api
+    links:
+      - api:api
+
+  # redis:
+  #   image: redis
