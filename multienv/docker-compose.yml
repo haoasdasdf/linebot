@@ -24,7 +24,7 @@ services:
 
   api-prod:
     restart: always
-    build: ./master
+    build: ./prod
     # depends_on:
     #   - redis
     expose:
