@@ -3,6 +3,8 @@ services:
   api-dev:
     restart: always
     build: ./dev
+    volumes: 
+      - ./dev:/usr/src/app/api
     # depends_on:
     #   - redis
     expose:
@@ -17,6 +19,8 @@ services:
   rworker-dev:
     restart: always
     build: ./dev
+    volumes: 
+      - ./dev:/usr/src/app/api
     # depends_on:
     #   - redis
     env_file: ./dev/.env.dev
@@ -25,6 +29,8 @@ services:
   api-prod:
     restart: always
     build: ./prod
+    volumes: 
+      - ./prod:/usr/src/app/api
     # depends_on:
     #   - redis
     expose:
@@ -39,6 +45,8 @@ services:
   rworker-prod:
     restart: always
     build: ./prod
+    volumes: 
+      - ./prod:/usr/src/app/api
     # depends_on:
     #   - redis
     env_file: ./prod/.env.prod
