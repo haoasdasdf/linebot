@@ -7,7 +7,7 @@ services:
     #   - redis
     expose:
       - "5000"
-    env_file: ./prod/api/.env.dev
+    env_file: ./dev/.env.dev
     environment:
       - FLASK_APP=app.py
       - RUN='flask run --host=0.0.0.0 --port=5000'
@@ -19,7 +19,7 @@ services:
     build: ./dev
     # depends_on:
     #   - redis
-    env_file: ./prod/api/.env.dev
+    env_file: ./dev/.env.dev
     command: python -u rq_worker.py dev
 
   api-prod:
@@ -29,7 +29,7 @@ services:
     #   - redis
     expose:
       - "5000"
-    env_file: ./master/api/.env.master
+    env_file: ./prod/.env.prod
     environment:
       - FLASK_APP=app.py
       - RUN='flask run --host=0.0.0.0 --port=5000'
@@ -38,10 +38,10 @@ services:
 
   rworker-prod:
     restart: always
-    build: ./master
+    build: ./prod
     # depends_on:
     #   - redis
-    env_file: ./master/api/.env.master
+    env_file: ./prod/.env.prod
     command: python -u rq_worker.py prod
 
   nginx:
@@ -54,7 +54,8 @@ services:
     # volumes_from:
     #   - api
     links:
-      - api:api
+      - api-dev:api-dev
+      - api-prod:api-prod
 
   # redis:
   #   image: redis
