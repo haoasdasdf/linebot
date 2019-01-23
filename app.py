@@ -1,17 +1,17 @@
 
 import datetime
 import logging
+import os
 
 import redis
-from flask import Flask, Response, abort, request
+from flask import Flask, Response, abort, request, send_from_directory
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import (FollowEvent, LocationMessage, MessageEvent,
-	TextMessage, TextSendMessage, UnfollowEvent)
+                            TextMessage, TextSendMessage, UnfollowEvent)
 from rq import Queue
 
 from actions import *
-# from actions import (check_my_push_secret, delete_from_firebase, reply_line, push_message_to_line)
 from config import Config
 from fire_db import DBAPI
 from linebot_job import LineCallback
@@ -28,6 +28,11 @@ app = Flask(__name__)
 handler = line_bot.handler
 
 JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def hello_world():
