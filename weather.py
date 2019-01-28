@@ -146,7 +146,7 @@ class Weather():
 
 		data = f'''
 本日の天気予報です。
-場所：{city_info['country']} {city_info['state'] if city_info['state'] is not None else ''} {city} {city_info['town'] if city_info['town'] is not None else ''}
+場所：{city_info['country']} {city_info['state'] if city_info.get('state') is not None else ''} {city} {city_info['town'] if city_info.get('town') is not None else ''}
 現在気温: {weather_data['current_temp']}°C, {weather_data['current_summary']}
 現在風速: {weather_data['current_windSpeed']} m/s, {self.get_direction(weather_data['current_windBearing'])}
 		        
