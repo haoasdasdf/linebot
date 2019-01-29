@@ -96,6 +96,22 @@ class DBAPI():
 			logger.info('No data for user: {0}'.format(user_id))
 		return None 
 
+	def get_user_timezone(self, user_id):
+		if self.check_is_exist(user_id):
+			logger.info('proccess to get timezone info for {0}'.format(user_id))
+			try:
+				users = self.db.collection(self.FIREBASE_DATABASE_COLLECTION_NAME).document(u'users').collection(u'user').where('user_id', '==', user_id).get()
+				for user in users:
+					timezone = user.to_dict().get('timezone')
+					return timezone
+			except:
+				logger.error('Got error when get timezone info for {0}'.format(user_id))
+				return None
+		else:
+			logger.info('No data for user: {0}'.format(user_id))
+			return None 
+		return None 
+
 	def get_timezone_from_lat_long(self, latitude, longitude):
 		try:
 			timezone = self.tf.timezone_at(lat=latitude, lng=longitude)
@@ -188,3 +204,4 @@ if __name__ == "__main__":
 	# logger.info(do.check_is_active('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	print(do.get_user_timezone('U816d9966f1e0af6c123cdb3a6522b7c4'))
