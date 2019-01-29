@@ -1,5 +1,6 @@
 import datetime
 import logging
+from timezonefinder import TimezoneFinder
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -19,6 +20,7 @@ class DBAPI():
 		self.FIREBASE_DATABASE_COLLECTION_NAME = Config.FIREBASE_CONFIG['COLLECTION_NAME']
 		firebase_admin.initialize_app(self.cred)
 		self.db = firestore.client()
+		self.tf = TimezoneFinder()
 
 	def add_user(self, data) :
 		logger.info(data)
@@ -78,9 +80,11 @@ class DBAPI():
 			try:
 				users = self.db.collection(self.FIREBASE_DATABASE_COLLECTION_NAME).document(u'users').collection(u'user').where('active', '==', True).where('user_id', '==', user_id).get()
 				for user in users:
+					print(user.to_dict().get('timezone'))
 					data = {
 					'latitude': user.to_dict()['latitude'],
-					'longitude': user.to_dict()['longitude']
+					'longitude': user.to_dict()['longitude'],
+					'timezone': 'Asia/Tokyo' if user.to_dict().get('timezone') is None else user.to_dict()['timezone'] 
 					}
 					logger.info('Got location info : {}'.format(data))
 					return data
@@ -91,6 +95,16 @@ class DBAPI():
 		else:
 			logger.info('No data for user: {0}'.format(user_id))
 		return None 
+
+	def get_timezone_from_lat_long(self, latitude, longitude):
+		try:
+			timezone = self.tf.timezone_at(lat=latitude, lng=longitude)
+			if timezone is None:
+				raise ValueError('Timezone is None')
+		except:
+			logger.error('Get time zone from lat,long=({0}, {1}) failed, return default timezone Asia/Tokyo'.format(latitude, longitude))
+			timezone = 'Asia/Tokyo'
+		return timezone
 
 	def activate_user(self, user_id):
 		if self.check_is_exist(user_id):
@@ -167,10 +181,10 @@ if __name__ == "__main__":
 		'address': 'Japan, 〒101-0047 Tōkyō-to, Chiyoda-ku, Uchikanda, 2 Chome−12−５ 内山ビル'
 
 	}
-	# do = DBAPI()
-	
+	do = DBAPI()
+
 	# do.add_user(dummy_data)
 	# logger.info(do.get_active_users())
 	# logger.info(do.check_is_active('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
-	# logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))

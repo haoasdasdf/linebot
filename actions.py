@@ -95,7 +95,7 @@ def push_weather_to_users(time, user_id=None):
 					weather_raw,city_info = weather.get_weather(loc['latitude'], loc['longitude'], int(now.timestamp()))
 					content = None
 					if((weather_raw is not None) and (city_info is not None)):
-						content = weather.format_weather_data(weather_raw, city_info)
+						content = weather.format_weather_data(weather_raw, city_info, timezone=loc.get('timezone'))
 					else:
 						logger.info('Unknown location for user {0}'.format(user))
 
@@ -111,6 +111,7 @@ def push_weather_to_users(time, user_id=None):
 
 def received_location(reply_token, time, data):
 	try:
+		data['timezone'] = fire.get_timezone_from_lat_long(data['latitude'], data['longitude'])
 		result = fire.add_user(data)
 		q.enqueue(reply_line,args=(reply_token, result))
 		# line_bot.line_bot_api.reply_message(reply_token, TextSendMessage(text=result))

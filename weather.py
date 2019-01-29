@@ -2,6 +2,8 @@ import datetime
 import json
 import logging
 import os
+
+import pytz
 import requests
 from geopy.geocoders import Nominatim
 
@@ -95,8 +97,8 @@ class Weather():
 		return ('{0}方向'.format(direction))
 
 	def change_to_timezone(self, timestamp, timezone):
-		zone = datetime.timezone(datetime.timedelta(hours=timezone))
-		this_time = datetime.datetime.fromtimestamp(timestamp, zone)
+		tz = pytz.timezone(timezone)
+		this_time = datetime.datetime.fromtimestamp(timestamp, tz)
 		return this_time
 
 
@@ -140,8 +142,12 @@ class Weather():
 		except:
 			logger.error('Failed to get weather data')
 		return None, None
-	def format_weather_data(self, weather_data, city_info):
+	def format_weather_data(self, weather_data, city_info, timezone=None):
+
 		logger.info('Format weather data for send ')
+		if timezone is None:
+			return
+
 		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
 
 		data = f'''
@@ -155,8 +161,8 @@ class Weather():
 体感温度: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
 湿度: {weather_data['daily_humidity']}%
 風速: {weather_data['wind_speed']} m/s, {self.get_direction(weather_data['daily_windBearing'])}
-日の出: {self.change_to_timezone(weather_data['sunriseTime'], 9).strftime('%H:%M')}
-日の入: {self.change_to_timezone(weather_data['sunsetTime'], 9).strftime('%H:%M')}
+日の出: {self.change_to_timezone(weather_data['sunriseTime'], timezone).strftime('%H:%M')}
+日の入: {self.change_to_timezone(weather_data['sunsetTime'], timezone).strftime('%H:%M')}
 		        '''
 		return data
 
@@ -181,7 +187,7 @@ if __name__ == '__main__':
 	city_dummy = {
 		'city': '目黒区', 'state': '東京都', 'region': '関東地方', 'postcode': '152-0003', 'country': '日本', 'country_code': 'jp'
 	}
-	timestamp = 1548048962
+	timestamp = datetime.datetime.now().timestamp()
 	
 	# wea = Weather()
 	# q = Queue(connection=conn)
@@ -191,7 +197,7 @@ if __name__ == '__main__':
 	# if(city is not None):
 	# 	# wea.get_weather_owm(city['city'], city['country'])
 	# test = datetime.timezone(datetime.timedelta(hours=9))
-	# print(wea.change_to_timezone(int(datetime.datetime.now().timestamp()), 9).strftime("%Y-%m-%d %H:%M"))
+	# print(wea.change_to_timezone(int(datetime.datetime.now().timestamp()), 'Asia/Jakarta').strftime("%Y-%m-%d %H:%M"))
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
 	# weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
 	# print(wea.format_weather_data(weather_info, city_info))
