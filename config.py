@@ -25,6 +25,7 @@ else:
 dotenv.load_dotenv(dotenv_path)
 os.environ.get('')
 class Config:
+	RUN_ENV = args.env
 	LINE_CONFIG = {
 	'CHANNEL_ID': os.environ.get('LINE_CHANNEL_ID'),
 	'ACCESS_TOKEN': os.environ.get('LINE_ACCESS_TOKEN'),
