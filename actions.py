@@ -20,7 +20,7 @@ line_bot = LineCallback()
 fire = DBAPI('actions')
 weather = Weather()
 
-q = Queue(connection=conn)
+q = Queue(Config.RUN_ENV, connection=conn)
 
 def check_my_push_secret(push_secret):
 
