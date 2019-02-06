@@ -15,7 +15,7 @@ redis_config = Config.REDIS_CLOUD_CONFIG
 if redis_config['REDIS_HOST_FROM'] == 'cloud':
 	redis_url = 'redis://{0}:{1}@{2}'.format(redis_config['DATABASE_NAME'], redis_config['PASSWORD'], redis_config['URL'])
 else:
-	redis_url = 'redis://redis:6379'
+	redis_url = redis_config['RQ_REDIS_URL']
 
 conn = redis.from_url(redis_url)
 
