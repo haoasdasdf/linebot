@@ -46,6 +46,7 @@ class Config:
 	'BASE_URL': os.environ.get('DARKSKY_API_BASE_URL')
 	}
 	REDIS_CLOUD_CONFIG = {
+	'REDIS_HOST_FROM': args.redis_from,
 	'RQ_REDIS_URL': os.environ.get('RQ_REDIS_URL'),
 	'URL': os.environ.get('REDIS_CLOUD_URL'),
 	'PASSWORD': os.environ.get('REDIS_CLOUD_PASSWORD'),

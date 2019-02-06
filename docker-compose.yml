@@ -26,7 +26,7 @@ services:
     depends_on:
       - redis
     environment: 
-      - RQ_REDIS_URL: redis://redis
+      - RQ_REDIS_URL=redis://redis
     env_file: .env.dev
     command: python -u rq_worker.py --env dev --redis local
 
