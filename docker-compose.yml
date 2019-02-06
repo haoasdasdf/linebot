@@ -9,9 +9,12 @@ services:
       - "5000"
     volumes:
       - ./:/usr/src/app/api
+    links:
+      - redis:redis
     environment:
       - FLASK_APP=app.py
       - RUN=flask run --host=0.0.0.0 --port=5000
+      - RQ_REDIS_URL=redis://redis
     env_file: .env.dev
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py --env dev --redis local
