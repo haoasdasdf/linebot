@@ -14,17 +14,19 @@ services:
       - RUN=flask run --host=0.0.0.0 --port=5000
     env_file: .env.dev
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
-    command: python app.py dev
+    command: python app.py --env dev --redis local
 
   rworker:
     restart: always
     build: .
     volumes:
       - ./:/usr/src/app/api
-    # depends_on:
-    #   - redis
+    links:
+      - redis:redis
+    depends_on:
+      - redis
     env_file: .env.dev
-    command: python -u rq_worker.py dev
+    command: python -u rq_worker.py --env dev --redis local
 
 
   nginx:
@@ -39,5 +41,5 @@ services:
     links:
       - api:api
 
-  # redis:
-  #   image: redis
+  redis:
+    image: redis
