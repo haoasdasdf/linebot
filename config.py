@@ -8,7 +8,7 @@ parser = ArgumentParser()
 parser.add_argument('--redis', default='cloud', type=str, choices=['local', 'cloud'], dest='redis_from')
 parser.add_argument('--env', default='local', type=str, choices=['local', 'dev', 'prod'], dest='env')
 # args = sys.argv
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
@@ -56,4 +56,4 @@ class Config:
 if __name__ == "__main__":
 	print(args.redis_from)
 	print(args.env)
-
+	print(unknown)
