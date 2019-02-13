@@ -45,21 +45,41 @@ class Weather():
 			return None
 		return city_info
 
-	def get_weather_owm(self, city_name, country_code):
+	def get_weather_owm(self, latitude, longitude):
 		'''
 		Get weather info using  open weather map api
 		'''
-		url = self.OPEN_WEATHER_MAP_BASE_URL + 'q={0},{1}&appid={2}'.format(city_name, country_code, self.OPEN_WEATHER_MAP_API_KEY)
+		url = self.OPEN_WEATHER_MAP_BASE_URL + 'weather?lat={0}&lon={1}&appid={2}'.format(latitude, longitude, self.OPEN_WEATHER_MAP_API_KEY)
 		try:
 			response = requests.get(url)
 			data = response.json()
-			logger.info(json.dumps(data, indent=4))
+			# logger.info(json.dumps(data, indent=4))
 			logger.info(data['cod'])
+			return data
 		except:
-			logger.error('Failed to get weather from owm for {0}, {1}'.format(city_name, country_code))
+			logger.error('Failed to get weather from owm for {0}, {1}'.format(latitude, longitude))
 		# for res in response.keys:
 		# 	print(res)
+			return None
+		return None
 
+	def get_weather_owm_5d(self, latitude, longitude):
+		'''
+		Get weather info using  open weather map api
+		'''
+		url = self.OPEN_WEATHER_MAP_BASE_URL + 'forecast?lat={0}&lon={1}&appid={2}'.format(latitude, longitude, self.OPEN_WEATHER_MAP_API_KEY)
+		try:
+			response = requests.get(url)
+			data = response.json()
+			# logger.info(json.dumps(data, indent=4))
+			logger.info(data['cod'])
+			return data
+		except:
+			logger.error('Failed to get weather from owm for {0}, {1}'.format(latitude, longitude))
+		# for res in response.keys:
+		# 	print(res)
+			return None
+		return None
 	def get_weather_darksky(self, latitude, longitude, timestamp):
 		url = self.DARKSKY_API_BASE_URL + '{0}/{1},{2},{3}?lang=ja&units=si'.format(self.DARKSKY_API_SECRET_KEY, latitude, longitude, timestamp)
 		try:
@@ -96,10 +116,10 @@ class Weather():
 			direction = '西北'
 		return ('{0}方向'.format(direction))
 
-	def change_to_timezone(self, timestamp, timezone):
+	def change_to_local_time(self, timestamp, timezone):
 		tz = pytz.timezone(timezone)
-		this_time = datetime.datetime.fromtimestamp(timestamp, tz)
-		return this_time
+		local_time = datetime.datetime.fromtimestamp(timestamp, tz)
+		return local_time
 
 
 	def get_weather(self, latitude, longitude, timestamp):
@@ -161,8 +181,8 @@ class Weather():
 体感温度: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
 湿度: {weather_data['daily_humidity']}%
 風速: {weather_data['wind_speed']} m/s, {self.get_direction(weather_data['daily_windBearing'])}
-日の出: {self.change_to_timezone(weather_data['sunriseTime'], timezone).strftime('%H:%M')}
-日の入: {self.change_to_timezone(weather_data['sunsetTime'], timezone).strftime('%H:%M')}
+日の出: {self.change_to_local_time(weather_data['sunriseTime'], timezone).strftime('%H:%M')}
+日の入: {self.change_to_local_time(weather_data['sunsetTime'], timezone).strftime('%H:%M')}
 		        '''
 		return data
 
@@ -189,15 +209,18 @@ if __name__ == '__main__':
 	}
 	timestamp = datetime.datetime.now().timestamp()
 	
-	# wea = Weather()
+	wea = Weather()
 	# q = Queue(connection=conn)
 
 	# result = q.enqueue('a','b')
 	# city = wea.get_city_name(dummy_location['latitude'], dummy_location['longitude'])
-	# if(city is not None):
-	# 	# wea.get_weather_owm(city['city'], city['country'])
+
+	# j_data = open('./owm-result.json').read()
+	# data = json.loads(j_data)
+	# print(len(data['list']))
+	# print(json.dumps(wea.get_weather_owm(dummy_location['latitude'], dummy_location['longitude']), indent=2))
 	# test = datetime.timezone(datetime.timedelta(hours=9))
-	# print(wea.change_to_timezone(int(datetime.datetime.now().timestamp()), 'Asia/Jakarta').strftime("%Y-%m-%d %H:%M"))
+	# print(wea.change_to_local_time(int(datetime.datetime.now().timestamp()), 'Asia/Tokyo').strftime("%Y-%m-%d %H:%M"))
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
 	# weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
 	# print(wea.format_weather_data(weather_info, city_info))
