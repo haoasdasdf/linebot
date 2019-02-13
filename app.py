@@ -103,17 +103,25 @@ def handle_message(event):
 		# reply if token is not for webhook test
 		logger.info(event.reply_token)
 		if(event.reply_token != '00000000000000000000000000000000'):
-			if(event.message.text == 'delete'):
-				q.enqueue(delete_from_firebase, args=(reply_token, user_id))
-			elif(event.message.text == 'weather'):
-				if(fire.check_is_exist(user_id) and fire.check_is_active(user_id)):
-					now = datetime.datetime.now(JST)
-					q.enqueue(push_weather_to_users, args=(now, user_id))
+			# Check command
+			if check_is_command(event.message.text):
+				if(event.message.text == '/delete'):
+					q.enqueue(delete_from_firebase, args=(reply_token, user_id))
+				elif(event.message.text == '/weather'):
+					if(fire.check_is_exist(user_id) and fire.check_is_active(user_id)):
+						now = datetime.datetime.now(JST)
+						q.enqueue(push_weather_to_users, args=(now, user_id))
+					else:
+						res = 'Please send me your location!'
+						q.enqueue(reply_line, args=(reply_token, res))
 				else:
-					res = 'Please send me your location!'
+					# Bad command
+					res = 'Command not Found'
 					q.enqueue(reply_line, args=(reply_token, res))
 			else:
 				q.enqueue(reply_line, args=(reply_token, event.message.text))
+
+
 		else:
 			logger.info('A webhook test')
 	except Exception as e:

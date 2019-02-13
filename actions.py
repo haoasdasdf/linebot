@@ -27,6 +27,12 @@ def check_my_push_secret(push_secret):
 	logger.info('Check push secret: {0}'.format(push_secret == MY_PUSH_SECRET))
 	return True if push_secret == MY_PUSH_SECRET else False
 
+def check_is_command(string):
+	'''
+	Judge if first char of string is / will be a command
+	'''
+	return True if (string[:1] == '/') else False
+
 def delete_from_firebase( reply_token, user_id):
 	try:
 		logger.info('delete request')
