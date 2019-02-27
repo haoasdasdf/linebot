@@ -1,6 +1,7 @@
 version: "3"
 services:
   api-dev:
+    container_name: api-dev
     restart: always
     build: ./dev
     volumes: 
@@ -18,6 +19,7 @@ services:
     command: python app.py --env dev --redis local
 
   rworker-dev:
+    container_name: rworker-dev
     restart: always
     build: ./dev
     volumes: 
@@ -32,6 +34,7 @@ services:
     command: python -u rq_worker.py --env dev --redis local
 
   api-prod:
+    container_name: api-prod
     restart: always
     build: ./prod
     volumes: 
@@ -49,6 +52,7 @@ services:
     command: python app.py --env prod --redis local
 
   rworker-prod:
+    container_name: rworker-prod
     restart: always
     build: ./prod
     volumes: 
@@ -63,6 +67,7 @@ services:
     command: python -u rq_worker.py --env prod --redis local
 
   nginx:
+    container_name: multi-nginx
     restart: always
     build: ./nginx
     ports:
@@ -75,4 +80,5 @@ services:
       - api-prod:api-prod
 
   redis:
+    container_name: multi-redis
     image: redis

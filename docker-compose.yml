@@ -1,6 +1,7 @@
 version: "3"
 services:
   api:
+    container_name: api
     restart: always
     build: .
     # depends_on:
@@ -20,6 +21,7 @@ services:
     command: python app.py --env dev --redis local
 
   rworker:
+    container_name: rworker
     restart: always
     build: .
     volumes:
@@ -35,6 +37,7 @@ services:
 
 
   nginx:
+    container_name: nginx
     restart: always
     build: ./nginx
     ports:
@@ -47,4 +50,5 @@ services:
       - api:api
 
   redis:
+    container_name: redis
     image: redis
