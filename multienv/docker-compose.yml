@@ -12,19 +12,24 @@ services:
     env_file: ./dev/.env.dev
     environment:
       - FLASK_APP=app.py
-      - RUN='flask run --host=0.0.0.0 --port=5000'
+      - RUN=flask run --host=0.0.0.0 --port=5000
+      - RQ_REDIS_URL=redis://redis
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
-    command: python app.py dev
+    command: python app.py --env dev --redis local
 
   rworker-dev:
     restart: always
     build: ./dev
     volumes: 
       - ./dev:/usr/src/app/api
-    # depends_on:
-    #   - redis
+    links:
+      - redis:redis
+    depends_on:
+      - redis
+    environment: 
+      - RQ_REDIS_URL=redis://redis
     env_file: ./dev/.env.dev
-    command: python -u rq_worker.py dev
+    command: python -u rq_worker.py --env dev --redis local
 
   api-prod:
     restart: always
@@ -38,19 +43,24 @@ services:
     env_file: ./prod/.env.prod
     environment:
       - FLASK_APP=app.py
-      - RUN='flask run --host=0.0.0.0 --port=5000'
+      - RUN=flask run --host=0.0.0.0 --port=5000
+      - RQ_REDIS_URL=redis://redis
     # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
-    command: python app.py prod
+    command: python app.py --env prod --redis local
 
   rworker-prod:
     restart: always
     build: ./prod
     volumes: 
       - ./prod:/usr/src/app/api
-    # depends_on:
-    #   - redis
+    links:
+      - redis:redis
+    depends_on:
+      - redis
+    environment: 
+      - RQ_REDIS_URL=redis://redis
     env_file: ./prod/.env.prod
-    command: python -u rq_worker.py prod
+    command: python -u rq_worker.py --env prod --redis local
 
   nginx:
     restart: always
@@ -59,11 +69,10 @@ services:
       - "80:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-    # volumes_from:
-    #   - api
+
     links:
       - api-dev:api-dev
       - api-prod:api-prod
 
-  # redis:
-  #   image: redis
+  redis:
+    image: redis
