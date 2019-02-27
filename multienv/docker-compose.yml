@@ -6,8 +6,6 @@ services:
     build: ./dev
     volumes: 
       - ./dev:/usr/src/app/api
-    # depends_on:
-    #   - redis
     expose:
       - "5000"
     env_file: ./dev/.env.dev
@@ -39,8 +37,6 @@ services:
     build: ./prod
     volumes: 
       - ./prod:/usr/src/app/api
-    # depends_on:
-    #   - redis
     expose:
       - "5000"
     env_file: ./prod/.env.prod
@@ -48,7 +44,6 @@ services:
       - FLASK_APP=app.py
       - RUN=flask run --host=0.0.0.0 --port=5000
       - RQ_REDIS_URL=redis://redis
-    # command: /usr/local/bin/gunicorn app:app -w 2 -b :8000 --reload
     command: python app.py --env prod --redis local
 
   rworker-prod:
@@ -74,7 +69,6 @@ services:
       - "80:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-
     links:
       - api-dev:api-dev
       - api-prod:api-prod
