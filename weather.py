@@ -96,6 +96,20 @@ class Weather():
 	def temperature_f2c(self, fahrenheit):
 		return (round((fahrenheit - 32) / 1.8))
 
+	def convert_uv_index(self, index):
+		uv = ''
+		if index <= 2:
+			uv = '弱'
+		elif index <=5:
+			uv = '普通'
+		elif index <=7:
+			uv = '強'
+		elif index <=10:
+			uv = '非常に強い'
+		elif index >10:
+			uv = '極端に強い'
+		return uv
+
 	def get_direction(self, azimuth):
 		direction = '未知'
 		if azimuth < 23 or azimuth >= 338:
@@ -150,14 +164,17 @@ class Weather():
 				weather_data['current_windBearing'] = darksky_data['currently']['windBearing'] if 'windBearing' in darksky_data['currently'] else None
 				weather_data['daily_summary'] = darksky_data['hourly']['summary']
 				weather_data['daily_humidity'] = round(darksky_data['daily']['data'][0]['humidity'] * 100)
+				weather_data['daily_pop'] = round(darksky_data['daily']['data'][0]['precipProbability'] * 100)
 				weather_data['max_temp'] = round(darksky_data['daily']['data'][0]['temperatureMax'])
 				weather_data['min_temp'] = round(darksky_data['daily']['data'][0]['temperatureMin'])
 				weather_data['max_apparent_temp'] = round(darksky_data['daily']['data'][0]['apparentTemperatureMax'])
 				weather_data['min_apparent_temp'] = round(darksky_data['daily']['data'][0]['apparentTemperatureMin'])
 				weather_data['wind_speed'] = darksky_data['daily']['data'][0]['windSpeed']
 				weather_data['daily_windBearing'] = darksky_data['daily']['data'][0]['windBearing'] if 'windBearing' in darksky_data['daily']['data'][0] else None
-				weather_data['sunriseTime'] = darksky_data['daily']['data'][0]['sunriseTime']
-				weather_data['sunsetTime'] = darksky_data['daily']['data'][0]['sunsetTime']
+				weather_data['daily_uv_index'] = darksky_data['daily']['data'][0]['uvIndex']
+				weather_data['daily_uv_max_time'] = darksky_data['daily']['data'][0]['uvIndexTime']
+				weather_data['sunrise_time'] = darksky_data['daily']['data'][0]['sunriseTime']
+				weather_data['sunset_time'] = darksky_data['daily']['data'][0]['sunsetTime']
 				return weather_data, self.get_city_name(latitude, longitude)
 		except:
 			logger.error('Failed to get weather data')
@@ -177,12 +194,15 @@ class Weather():
 現在風速: {weather_data['current_windSpeed']} m/s, {self.get_direction(weather_data['current_windBearing'])}
 		        
 今日は{weather_data['daily_summary']}
+降水確率: {weather_data['daily_pop']}%
 気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
 体感温度: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
+紫外線指数: {weather_data['daily_uv_index']} {self.convert_uv_index(weather_data['daily_uv_index'])}
+最強紫外線時刻: {self.change_to_local_time(weather_data['daily_uv_max_time'], timezone).strftime('%H:%M')}
 湿度: {weather_data['daily_humidity']}%
 風速: {weather_data['wind_speed']} m/s, {self.get_direction(weather_data['daily_windBearing'])}
-日の出: {self.change_to_local_time(weather_data['sunriseTime'], timezone).strftime('%H:%M')}
-日の入: {self.change_to_local_time(weather_data['sunsetTime'], timezone).strftime('%H:%M')}
+日の出: {self.change_to_local_time(weather_data['sunrise_time'], timezone).strftime('%H:%M')}
+日の入: {self.change_to_local_time(weather_data['sunset_time'], timezone).strftime('%H:%M')}
 		        '''
 		return data
 
@@ -192,7 +212,8 @@ if __name__ == '__main__':
 	# from rq import Queue
 	dummy_location = {
 		'latitude': 35.618364,
-		'longitude': 139.68257
+		'longitude': 139.68257,
+		'timezone': 'Asia/Tokyo'
 	}
 	weather_dummy = {'current_temp': 9,
 		'current_summary': '薄曇り',
@@ -218,9 +239,12 @@ if __name__ == '__main__':
 	# j_data = open('./owm-result.json').read()
 	# data = json.loads(j_data)
 	# print(len(data['list']))
+	with open('owm_5d_dummy.json', mode='w', encoding='utf-8') as feedsjson:
+		feedsjson.write(json.dumps(wea.get_weather_owm_5d(dummy_location['latitude'], dummy_location['longitude']), indent=2))
 	# print(json.dumps(wea.get_weather_owm(dummy_location['latitude'], dummy_location['longitude']), indent=2))
 	# test = datetime.timezone(datetime.timedelta(hours=9))
 	# print(wea.change_to_local_time(int(datetime.datetime.now().timestamp()), 'Asia/Tokyo').strftime("%Y-%m-%d %H:%M"))
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
 	# weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
-	# print(wea.format_weather_data(weather_info, city_info))
+
+	# print(wea.format_weather_data(weather_info, city_info, dummy_location['timezone']))
