@@ -198,7 +198,7 @@ class Weather():
 気温: {weather_data['min_temp']}°C ~ {weather_data['max_temp']}°C
 体感温度: {weather_data['min_apparent_temp']}°C ~ {weather_data['max_apparent_temp']}°C
 紫外線指数: {weather_data['daily_uv_index']} {self.convert_uv_index(weather_data['daily_uv_index'])}
-最強紫外線時刻: {self.change_to_local_time(weather_data['daily_uv_max_time'], timezone).strftime('%H:%M')}
+紫外線ピーク時刻: {self.change_to_local_time(weather_data['daily_uv_max_time'], timezone).strftime('%H:%M')}
 湿度: {weather_data['daily_humidity']}%
 風速: {weather_data['wind_speed']} m/s, {self.get_direction(weather_data['daily_windBearing'])}
 日の出: {self.change_to_local_time(weather_data['sunrise_time'], timezone).strftime('%H:%M')}
@@ -215,18 +215,24 @@ if __name__ == '__main__':
 		'longitude': 139.68257,
 		'timezone': 'Asia/Tokyo'
 	}
-	weather_dummy = {'current_temp': 9,
+	weather_dummy = {
+		'current_temp': 9,
 		'current_summary': '薄曇り',
-			'daily_summary': '薄曇りが朝から始まり夕方まで続く。',
-				'daily_humidity': 70,
-					'max_temp': 10,
-						'min_temp': 2,
-					'max_apparent_temp': 10,
-						'min_apparent_temp': 0,
-							'wind_speed': 1.23
-					}
+		'daily_summary': '薄曇りが朝から始まり夕方まで続く。',
+		'daily_humidity': 70,
+		'max_temp': 10,
+		'min_temp': 2,
+		'max_apparent_temp': 10,
+		'min_apparent_temp': 0,
+		'wind_speed': 1.23
+	}
 	city_dummy = {
-		'city': '目黒区', 'state': '東京都', 'region': '関東地方', 'postcode': '152-0003', 'country': '日本', 'country_code': 'jp'
+		'city': '目黒区',
+		'state': '東京都',
+		'region': '関東地方',
+		'postcode': '152-0003',
+		'country': '日本',
+		'country_code': 'jp'
 	}
 	timestamp = datetime.datetime.now().timestamp()
 	
