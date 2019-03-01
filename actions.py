@@ -117,7 +117,6 @@ def push_weather_to_users(time, user_id=None):
 
 def push_weather_5d_to_users(time, user_id=None):
 	try:
-		now = time
 		if user_id is None:
 			users = fire.get_active_users()
 		else:
@@ -131,7 +130,7 @@ def push_weather_5d_to_users(time, user_id=None):
 				if loc is None:
 					result[user] = push_message(user)
 				else:
-					logger.info('get weather info')
+					logger.info('get weather 5d info')
 
 					weather_5d, city_info = weather.get_weather_5d(loc['latitude'], loc['longitude'])
 					content = None
