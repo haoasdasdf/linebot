@@ -67,7 +67,7 @@ class Weather():
 		'''
 		Get weather info using  open weather map api
 		'''
-		url = self.OPEN_WEATHER_MAP_BASE_URL + 'forecast?lat={0}&lon={1}&appid={2}'.format(latitude, longitude, self.OPEN_WEATHER_MAP_API_KEY)
+		url = self.OPEN_WEATHER_MAP_BASE_URL + 'forecast?lat={0}&lon={1}&lang=ja&units=metric&appid={2}'.format(latitude, longitude, self.OPEN_WEATHER_MAP_API_KEY)
 		try:
 			response = requests.get(url)
 			data = response.json()
@@ -179,10 +179,23 @@ class Weather():
 		except:
 			logger.error('Failed to get weather data')
 		return None, None
+
+	def get_weather_5d(self, latitude, longitude):
+		
+		try:
+			owm_5d_data = self.get_weather_owm_5d(latitude, longitude)
+			if(owm_5d_data is not None):
+				return owm_5d_data, self.get_city_name(latitude, longitude)
+		except:
+			logger.error('Failed to get weather data')
+		return None, None
+		
+
 	def format_weather_data(self, weather_data, city_info, timezone=None):
 
 		logger.info('Format weather data for send ')
 		if timezone is None:
+			logger.error('No timezone')
 			return
 
 		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
@@ -206,13 +219,36 @@ class Weather():
 		        '''
 		return data
 
+	def format_weather_5d_data(self, weather_data_5d, city_info, timezone=None):
+		logger.info('Format weather data for send ')
+		if timezone is None:
+			logger.error('No timezone')
+			return
+
+		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
+		
+		data = f'''
+場所：{city_info['country']} {city_info['state'] if city_info.get('state') is not None else ''} {city} {city_info['town'] if city_info.get('town') is not None else ''}
+		'''
+		# print(data)
+		if weather_data_5d.get('list') is not None:
+			for wea in weather_data_5d.get('list'):
+				raw = '{0}時 {1}°C {2}'.format(self.change_to_local_time(wea['dt'], timezone).strftime('%m-%d %H'), round(wea['main']['temp']), wea['weather'][0]['description'])
+				data = data + '\n' + raw
+			return data
+		return None
+			
 
 if __name__ == '__main__':
 	# from worker import conn
 	# from rq import Queue
 	dummy_location = {
+		#JP
 		'latitude': 35.618364,
 		'longitude': 139.68257,
+		# US
+		# 'latitude': 38.876367,
+		# 'longitude': -104.850356,
 		'timezone': 'Asia/Tokyo'
 	}
 	weather_dummy = {
@@ -245,12 +281,19 @@ if __name__ == '__main__':
 	# j_data = open('./owm-result.json').read()
 	# data = json.loads(j_data)
 	# print(len(data['list']))
-	with open('owm_5d_dummy.json', mode='w', encoding='utf-8') as feedsjson:
-		feedsjson.write(json.dumps(wea.get_weather_owm_5d(dummy_location['latitude'], dummy_location['longitude']), indent=2))
+
+	### dump weather data to json file
+	# with open('owm_5d_dummy.json', mode='w', encoding='utf-8') as feedsjson:
+	# 	feedsjson.write(json.dumps(wea.get_weather_owm_5d(dummy_location['latitude'], dummy_location['longitude']), ensure_ascii=False, indent=2))
+
+	### test weather 5d
+	# weather_5d, city_info = wea.get_weather_5d(dummy_location['latitude'], dummy_location['longitude'])
+	# wea.format_weather_5d_data(weather_5d, city_info, 'Asia/Tokyo')
+
+
 	# print(json.dumps(wea.get_weather_owm(dummy_location['latitude'], dummy_location['longitude']), indent=2))
 	# test = datetime.timezone(datetime.timedelta(hours=9))
 	# print(wea.change_to_local_time(int(datetime.datetime.now().timestamp()), 'Asia/Tokyo').strftime("%Y-%m-%d %H:%M"))
 	# print(wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp())))
 	# weather_info, city_info = wea.get_weather(dummy_location['latitude'], dummy_location['longitude'], int(datetime.datetime.now().timestamp()))
-
 	# print(wea.format_weather_data(weather_info, city_info, dummy_location['timezone']))

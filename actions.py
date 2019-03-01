@@ -115,6 +115,41 @@ def push_weather_to_users(time, user_id=None):
 		return False
 	return True
 
+def push_weather_5d_to_users(time, user_id=None):
+	try:
+		now = time
+		if user_id is None:
+			users = fire.get_active_users()
+		else:
+			users = [user_id]
+
+		if len(users) > 0:
+			results = []
+			for user in users:
+				result = {}
+				loc = fire.get_location_info(user)
+				if loc is None:
+					result[user] = push_message(user)
+				else:
+					logger.info('get weather info')
+
+					weather_5d, city_info = weather.get_weather_5d(loc['latitude'], loc['longitude'])
+					content = None
+					if((weather_5d is not None) and (city_info is not None)):
+						content = weather.format_weather_5d_data(weather_5d, city_info, timezone=loc.get('timezone')) 
+					else:
+						logger.info('Unknown location for user {0}'.format(user))
+
+					logger.info('Push future weather 5d info to user')
+					result[user] = push_message(user, content)
+					results.append(result)
+			logger.info('Push 5d result')
+			logger.info(results)
+	except Exception as e:
+		logger.error(e)
+		return False
+	return True	
+
 def received_location(reply_token, time, data):
 	try:
 		data['timezone'] = fire.get_timezone_from_lat_long(data['latitude'], data['longitude'])

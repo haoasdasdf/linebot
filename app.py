@@ -8,7 +8,7 @@ from flask import Flask, Response, abort, request, send_from_directory
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import (FollowEvent, LocationMessage, MessageEvent,
-                            TextMessage, TextSendMessage, UnfollowEvent)
+	TextMessage, TextSendMessage, UnfollowEvent)
 from rq import Queue
 
 from actions import *
@@ -31,8 +31,8 @@ JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+	return send_from_directory(os.path.join(app.root_path, 'static'),
+		'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def hello_world():
@@ -111,6 +111,13 @@ def handle_message(event):
 					if(fire.check_is_exist(user_id) and fire.check_is_active(user_id)):
 						now = datetime.datetime.now(JST)
 						q.enqueue(push_weather_to_users, args=(now, user_id))
+					else:
+						res = 'Please send me your location!'
+						q.enqueue(reply_line, args=(reply_token, res))
+				elif(event.message.text == '/weather_5d'):
+					if(fire.check_is_exist(user_id) and fire.check_is_active(user_id)):
+						now = datetime.datetime.now(JST)
+						q.enqueue(push_weather_5d_to_users, args=(now, user_id))
 					else:
 						res = 'Please send me your location!'
 						q.enqueue(reply_line, args=(reply_token, res))
