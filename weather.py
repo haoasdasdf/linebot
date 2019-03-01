@@ -228,6 +228,7 @@ class Weather():
 		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
 		
 		data = f'''
+未来5日間の天気です。
 場所：{city_info['country']} {city_info['state'] if city_info.get('state') is not None else ''} {city} {city_info['town'] if city_info.get('town') is not None else ''}
 		'''
 		# print(data)
