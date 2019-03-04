@@ -220,22 +220,39 @@ class Weather():
 		return data
 
 	def format_weather_5d_data(self, weather_data_5d, city_info, timezone=None):
-		logger.info('Format weather data for send ')
+		logger.info('Format weather 5d data for send ')
 		if timezone is None:
 			logger.error('No timezone')
 			return
 
 		city = city_info['city'] if city_info.get('city') is not None else (city_info['state_district'] if city_info.get('state_district') is not None else '')
 		
-		data = f'''
-未来5日間の天気です。
-場所：{city_info['country']} {city_info['state'] if city_info.get('state') is not None else ''} {city} {city_info['town'] if city_info.get('town') is not None else ''}
-		'''
+# 		data = f'''
+# 未来5日間の天気です。
+# 場所：{city_info['country']} {city_info['state'] if city_info.get('state') is not None else ''} {city} {city_info['town'] if city_info.get('town') is not None else ''}
+# 		'''
+		opening = ['今後の天気です']
+		loc = '場所: {} {} {} {}'.format(city_info['country'], (city_info['state'] if city_info.get('state') is not None else ''), city, (city_info['town'] if city_info.get('town') is not None else ''))
+		opening.append(loc)
+		data_5d_format = []
 		# print(data)
 		if weather_data_5d.get('list') is not None:
 			for wea in weather_data_5d.get('list'):
-				raw = '{0}時 {1}°C {2}'.format(self.change_to_local_time(wea['dt'], timezone).strftime('%m-%d %H'), round(wea['main']['temp']), wea['weather'][0]['description'])
-				data = data + '\n' + raw
+				
+				raw = {
+					'time': wea['dt'],
+					'temprature': round(wea['main']['temp']),
+					'description': wea['weather'][0]['description']
+				}
+				# raw = '{0}時 {1}°C {2}'.format(self.change_to_local_time(wea['dt'], timezone).strftime('%m-%d %H'), round(wea['main']['temp']), wea['weather'][0]['description'])
+				# data = data + '\n' + raw
+				data_5d_format.append(raw)
+			# filter data by conditions
+			data = '\n'.join(opening) + '\n'
+			for i in range(20):
+				if i%2==0:
+					data = data + ('\n{0}時 {1}°C {2}'.format(self.change_to_local_time(data_5d_format[i]['time'], timezone).strftime('%m-%d %H'), data_5d_format[i]['temprature'], data_5d_format[i]['description']))
+			# return opening, data_5d_format
 			return data
 		return None
 			
@@ -244,13 +261,14 @@ if __name__ == '__main__':
 	# from worker import conn
 	# from rq import Queue
 	dummy_location = {
-		#JP
-		'latitude': 35.618364,
-		'longitude': 139.68257,
-		# US
-		# 'latitude': 38.876367,
-		# 'longitude': -104.850356,
-		'timezone': 'Asia/Tokyo'
+		## JP
+		# 'latitude': 35.618364,
+		# 'longitude': 139.68257,
+		# 'timezone': 'Asia/Tokyo'
+		## US
+		'latitude': 33.807927, 
+		'longitude': -117.922724,
+		'timezone': 'America/Los_Angeles'
 	}
 	weather_dummy = {
 		'current_temp': 9,
@@ -288,8 +306,9 @@ if __name__ == '__main__':
 	# 	feedsjson.write(json.dumps(wea.get_weather_owm_5d(dummy_location['latitude'], dummy_location['longitude']), ensure_ascii=False, indent=2))
 
 	### test weather 5d
-	# weather_5d, city_info = wea.get_weather_5d(dummy_location['latitude'], dummy_location['longitude'])
-	# wea.format_weather_5d_data(weather_5d, city_info, 'Asia/Tokyo')
+	weather_5d, city_info = wea.get_weather_5d(dummy_location['latitude'], dummy_location['longitude'])
+	weather_5d_format = wea.format_weather_5d_data(weather_5d, city_info, dummy_location['timezone'])
+	print(weather_5d_format)
 
 
 	# print(json.dumps(wea.get_weather_owm(dummy_location['latitude'], dummy_location['longitude']), indent=2))

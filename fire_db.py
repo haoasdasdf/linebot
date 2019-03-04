@@ -203,5 +203,7 @@ if __name__ == "__main__":
 	# logger.info(do.get_active_users())
 	# logger.info(do.check_is_active('U816d9966f1e0af6c123cdb3a6522b7c4'))
 	# logger.info(do.check_is_exist('U816d9966f1e0af6c123cdb3a6522b7c4'))
-	logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))
-	print(do.get_user_timezone('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	# logger.info(do.get_location_info('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	# print(do.get_user_timezone('U816d9966f1e0af6c123cdb3a6522b7c4'))
+	print(do.get_timezone_from_lat_long(33.807927, -117.922724))
+
