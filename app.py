@@ -90,6 +90,7 @@ def callback():
 	try:
 		handler.handle(body, signature)
 	except InvalidSignatureError:
+		logger.error('Bad signature')
 		abort(400)
 
 	return 'OK'
