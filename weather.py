@@ -176,7 +176,8 @@ class Weather():
 				weather_data['sunrise_time'] = darksky_data['daily']['data'][0]['sunriseTime']
 				weather_data['sunset_time'] = darksky_data['daily']['data'][0]['sunsetTime']
 				return weather_data, self.get_city_name(latitude, longitude)
-		except:
+		except Exception as e:
+			logger.error(e)
 			logger.error('Failed to get weather data')
 		return None, None
 
